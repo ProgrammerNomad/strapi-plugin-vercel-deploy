@@ -40,10 +40,13 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           deployJobId,
         },
       };
-    } catch (error) {
-      console.error('[vercel-deploy] Error while deploying -', error);
+    } catch (error: any) {
+      const status = error?.response?.status;
+      const msg = error?.response?.data?.error?.message ?? error?.message ?? 'Unknown error';
+      console.error(`[vercel-deploy] Error while deploying (HTTP ${status}) -`, msg);
       return {
-        error: 'An error occurred while deploying',
+        error: `Deploy failed: ${msg}`,
+        statusCode: status,
       };
     }
   },
@@ -68,10 +71,13 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       });
 
       return response.data;
-    } catch (error) {
-      console.error('[vercel-deploy] Error while fetching deployments -', error);
+    } catch (error: any) {
+      const status = error?.response?.status;
+      const msg = error?.response?.data?.error?.message ?? error?.message ?? 'Unknown error';
+      console.error(`[vercel-deploy] Error fetching deployments (HTTP ${status}) -`, msg);
       return {
-        error: 'An error occurred while fetching deployments',
+        error: `Failed to fetch deployments: ${msg}`,
+        statusCode: status,
       };
     }
   },
@@ -79,10 +85,8 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
   deployAvailability() {
     const config = buildConfig(strapi);
     return {
-      deployHook: config.deployHook ? 'AVAILABLE' : 'MISSING_CONFIG_VARIABLE',
-      apiToken: config.apiToken ? 'AVAILABLE' : 'MISSING_CONFIG_VARIABLE',
-      appFilter: config.appFilter ? 'AVAILABLE' : 'MISSING_CONFIG_VARIABLE',
-      teamFilter: config.teamFilter ? 'AVAILABLE' : 'MISSING_CONFIG_VARIABLE',
+      runDeploy: config.deployHook ? 'AVAILABLE' : 'MISSING_CONFIGURATION_VARIABLE',
+      listDeploy: config.apiToken ? 'AVAILABLE' : 'MISSING_CONFIGURATION_VARIABLE',
     };
   },
 });

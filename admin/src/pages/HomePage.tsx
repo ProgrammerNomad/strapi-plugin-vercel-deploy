@@ -21,36 +21,44 @@ import {
   Tooltip,
   Link,
   Loader,
-  EmptyStateLayout,
 } from "@strapi/design-system";
-import { Plus, ExternalLink, Eye, ArrowLeft } from "@strapi/icons";
+import { Plus, ExternalLink, Eye, ArrowLeft, WarningCircle, Information } from "@strapi/icons";
 import { PLUGIN_ID } from "../pluginId";
 import { useDeployAvailability } from "../hooks/useDeployAvailability";
 import { useDeployments } from "../hooks/useDeployments";
 
 const getStateColor = (state: string) => {
   switch (state) {
-    case "READY":
-      return "success700";
+    case "READY": return "success700";
     case "ERROR":
-    case "CANCELED":
-      return "danger700";
-    default:
-      return "warning700";
+    case "CANCELED": return "danger700";
+    default: return "warning700";
   }
 };
 
 const getStateBgColor = (state: string) => {
   switch (state) {
-    case "READY":
-      return "success100";
+    case "READY": return "success100";
     case "ERROR":
-    case "CANCELED":
-      return "danger100";
-    default:
-      return "warning100";
+    case "CANCELED": return "danger100";
+    default: return "warning100";
   }
 };
+
+const InfoBox = ({ icon, message }: { icon: React.ReactNode; message: string }) => (
+  <Flex
+    direction="column"
+    alignItems="center"
+    justifyContent="center"
+    gap={4}
+    padding={10}
+  >
+    <Box color="neutral500" style={{ fontSize: "48px" }}>{icon}</Box>
+    <Typography variant="beta" textColor="neutral500" textAlign="center">
+      {message}
+    </Typography>
+  </Flex>
+);
 
 export const HomePage = () => {
   const { formatMessage } = useIntl();
@@ -60,22 +68,21 @@ export const HomePage = () => {
   const [isDeploying, setIsDeploying] = useState(false);
   const [usePolling, setUsePolling] = useState(false);
 
-  const [isLoadingAvailability, availability, availabilityError] =
-    useDeployAvailability();
+  const [isLoadingAvailability, availability, availabilityError] = useDeployAvailability();
 
-  const onDeploymentsFetched = (hasNonFinalState: boolean) => {
+  const canDeploy = availability?.runDeploy === "AVAILABLE";
+  const canList = availability?.listDeploy === "AVAILABLE";
+
+  // Stable callback — must not be recreated each render to avoid infinite fetch loop
+  const onDeploymentsFetched = React.useCallback((hasNonFinalState: boolean) => {
     setUsePolling(hasNonFinalState);
-  };
+  }, []);
 
   const [isLoadingDeployments, deployments, deploymentsError] = useDeployments(
     usePolling,
-    onDeploymentsFetched
+    onDeploymentsFetched,
+    canList && !isLoadingAvailability
   );
-
-  const canDeploy =
-    !availabilityError && availability?.runDeploy === "AVAILABLE";
-  const canList =
-    !availabilityError && availability?.listDeploy === "AVAILABLE";
 
   const runDeploy = async () => {
     try {
@@ -84,29 +91,57 @@ export const HomePage = () => {
       setUsePolling(true);
       toggleNotification({
         type: "success",
-        message: formatMessage({
-          id: `${PLUGIN_ID}.deploy-button.label`,
-          defaultMessage: "Deployment triggered successfully",
-        }),
+        message: "Deployment triggered successfully",
       });
     } catch (err) {
       console.error("[vercel-deploy] deploy error", err);
       toggleNotification({
         type: "danger",
-        message: formatMessage({
-          id: `${PLUGIN_ID}.deploy-error`,
-          defaultMessage: "Deployment failed — please retry",
-        }),
+        message: "Deployment failed — please retry",
       });
     } finally {
       setIsDeploying(false);
     }
   };
 
-  const renderDeployments = () => {
+  const renderContent = () => {
+    // Still loading availability
+    if (isLoadingAvailability) {
+      return (
+        <Flex justifyContent="center" padding={10}>
+          <Loader>Loading...</Loader>
+        </Flex>
+      );
+    }
+
+    // Availability API error (403 or generic)
+    if (availabilityError) {
+      return (
+        <InfoBox
+          icon={<WarningCircle />}
+          message={
+            availabilityError === "FORBIDDEN"
+              ? "You do not have permission to access this plugin."
+              : "Could not check feature availability — please reload the page."
+          }
+        />
+      );
+    }
+
+    // Missing API token — cannot list deployments
+    if (!canList) {
+      return (
+        <InfoBox
+          icon={<Information />}
+          message="You need to set the Vercel API Token. Go to Plugin Settings → Configuration for more info."
+        />
+      );
+    }
+
+    // Loading deployments (first load)
     if (isLoadingDeployments && deployments.length === 0) {
       return (
-        <Flex justifyContent="center" padding={8}>
+        <Flex justifyContent="center" padding={10}>
           <Loader>
             {formatMessage({
               id: `${PLUGIN_ID}.home-page.deployments.loader`,
@@ -117,71 +152,50 @@ export const HomePage = () => {
       );
     }
 
+    // Deployments fetch error
     if (deploymentsError) {
       return (
-        <Box padding={8}>
-          <EmptyStateLayout
-            icon={<span />}
-            content="There was an error fetching deployments. Please retry."
-          />
-        </Box>
+        <InfoBox
+          icon={<WarningCircle />}
+          message="There was an error fetching deployments from Vercel. Check your API Token and try again."
+        />
       );
     }
 
-    if (!canList) {
-      return (
-        <Box padding={8}>
-          <EmptyStateLayout
-            icon={<span />}
-            content="You need to set the API token in plugin config to list deployments."
-          />
-        </Box>
-      );
-    }
-
+    // No deployments
     if (deployments.length === 0) {
       return (
-        <Box padding={8}>
-          <EmptyStateLayout
-            icon={<span />}
-            content="No deployments found."
-          />
-        </Box>
+        <InfoBox
+          icon={<Information />}
+          message="No deployments found in your Vercel account."
+        />
       );
     }
 
+    // Deployments table
     return (
       <Table colCount={4} rowCount={deployments.length + 1}>
         <Thead>
           <Tr>
             <Th>
               <Typography variant="sigma">
-                {formatMessage({
-                  id: `${PLUGIN_ID}.deployments-list.table-header.app-name`,
-                  defaultMessage: "App Name",
-                })}
+                {formatMessage({ id: `${PLUGIN_ID}.deployments-list.table-header.app-name`, defaultMessage: "App Name" })}
               </Typography>
             </Th>
             <Th>
-              <Flex gap={2}>
+              <Flex gap={2} alignItems="center">
                 <Typography variant="sigma">
-                  {formatMessage({
-                    id: `${PLUGIN_ID}.deployments-list.table-header.state`,
-                    defaultMessage: "State",
-                  })}
+                  {formatMessage({ id: `${PLUGIN_ID}.deployments-list.table-header.state`, defaultMessage: "State" })}
                 </Typography>
                 {usePolling && <Loader small>Updating...</Loader>}
               </Flex>
             </Th>
             <Th>
               <Typography variant="sigma">
-                {formatMessage({
-                  id: `${PLUGIN_ID}.deployments-list.table-header.creation-date`,
-                  defaultMessage: "Creation Date",
-                })}
+                {formatMessage({ id: `${PLUGIN_ID}.deployments-list.table-header.creation-date`, defaultMessage: "Creation Date" })}
               </Typography>
             </Th>
-            <Th><span /></Th>
+            <Th><Typography variant="sigma"> </Typography></Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -205,34 +219,20 @@ export const HomePage = () => {
               </Td>
               <Td>
                 <Flex gap={1}>
-                  <Tooltip
-                    label={formatMessage({
-                      id: `${PLUGIN_ID}.deployments-list.table-body.visit-url`,
-                      defaultMessage: "Visit",
-                    })}
-                  >
-                    <Link
-                      href={`https://${entry.url}`}
-                      isExternal
-                      aria-label="Visit deployment"
-                    >
-                      <ExternalLink />
-                    </Link>
-                  </Tooltip>
-                  <Tooltip
-                    label={formatMessage({
-                      id: `${PLUGIN_ID}.deployments-list.table-body.inspect-url`,
-                      defaultMessage: "Inspect",
-                    })}
-                  >
-                    <Link
-                      href={entry.inspectorUrl}
-                      isExternal
-                      aria-label="Inspect deployment"
-                    >
-                      <Eye />
-                    </Link>
-                  </Tooltip>
+                  {entry.url && (
+                    <Tooltip label="Visit deployment">
+                      <Link href={`https://${entry.url}`} isExternal aria-label="Visit">
+                        <ExternalLink />
+                      </Link>
+                    </Tooltip>
+                  )}
+                  {entry.inspectorUrl && (
+                    <Tooltip label="Inspect deployment">
+                      <Link href={entry.inspectorUrl} isExternal aria-label="Inspect">
+                        <Eye />
+                      </Link>
+                    </Tooltip>
+                  )}
                 </Flex>
               </Td>
             </Tr>
@@ -241,12 +241,6 @@ export const HomePage = () => {
       </Table>
     );
   };
-
-  if (isLoadingAvailability) {
-    return (
-      <Page.Loading />
-    );
-  }
 
   return (
     <Page.Main>
@@ -260,26 +254,23 @@ export const HomePage = () => {
           <Button
             startIcon={<Plus />}
             onClick={runDeploy}
-            disabled={!canDeploy || isDeploying}
+            disabled={!canDeploy || isDeploying || isLoadingAvailability}
             loading={isDeploying}
           >
-            {formatMessage({
-              id: `${PLUGIN_ID}.deploy-button.label`,
-              defaultMessage: "Deploy",
-            })}
+            {formatMessage({ id: `${PLUGIN_ID}.deploy-button.label`, defaultMessage: "Deploy" })}
           </Button>
         }
-        title={formatMessage({
-          id: `${PLUGIN_ID}.home-page.header.title`,
-          defaultMessage: "Vercel Deploy",
-        })}
+        title={formatMessage({ id: `${PLUGIN_ID}.home-page.header.title`, defaultMessage: "Vercel Deploy" })}
         subtitle={formatMessage({
           id: `${PLUGIN_ID}.home-page.header.subtitle`,
-          defaultMessage:
-            "Manual deploy - Start a deployment on Vercel using the webhook you configured",
+          defaultMessage: "Manual deploy - Start a deployment on Vercel using the webhook you configured",
         })}
       />
-      <Layouts.Content>{renderDeployments()}</Layouts.Content>
+      <Layouts.Content>
+        <Box background="neutral0" hasRadius shadow="tableShadow">
+          {renderContent()}
+        </Box>
+      </Layouts.Content>
     </Page.Main>
   );
 };
