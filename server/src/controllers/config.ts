@@ -3,11 +3,11 @@ import type { Core } from '@strapi/strapi';
 const buildConfig = (strapi: Core.Strapi, hideSensitiveInfo = false) => {
   const pluginConfig = strapi.plugin('vercel-deploy').config;
 
-  const deployHook = pluginConfig('deployHook');
-  const apiToken = pluginConfig('apiToken');
-  const appFilter = pluginConfig('appFilter');
-  const teamFilter = pluginConfig('teamFilter');
-  const roles = pluginConfig('roles') || [];
+  const deployHook = pluginConfig('deployHook') as string;
+  const apiToken = pluginConfig('apiToken') as string;
+  const appFilter = pluginConfig('appFilter') as string;
+  const teamFilter = pluginConfig('teamFilter') as string;
+  const roles = (pluginConfig('roles') as string[]) || [];
 
   return {
     deployHook,

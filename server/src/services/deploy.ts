@@ -1,8 +1,16 @@
 import type { Core } from '@strapi/strapi';
 import axios from 'axios';
 
-const buildConfig = (strapi: Core.Strapi) => {
-  const config = strapi.config.get('plugin::vercel-deploy');
+interface VercelDeployConfig {
+  deployHook: string;
+  apiToken: string;
+  appFilter: string;
+  teamFilter: string;
+  roles: string[];
+}
+
+const buildConfig = (strapi: Core.Strapi): VercelDeployConfig => {
+  const config = strapi.config.get('plugin::vercel-deploy') as VercelDeployConfig;
   return {
     deployHook: config.deployHook,
     apiToken: config.apiToken,
