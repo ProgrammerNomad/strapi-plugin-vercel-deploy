@@ -1,6 +1,6 @@
 {
   "name": "@nomadprogrammer/strapi-plugin-vercel-deploy",
-  "version": "1.5.2",
+  "version": "0.1.0",
   "description": "Strapi v5 plugin to trigger and monitor deployments on Vercel",
   "license": "MIT",
   "author": "Shiv Singh <shiv@srapsware.com>",

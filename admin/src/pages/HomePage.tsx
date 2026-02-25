@@ -221,14 +221,14 @@ export const HomePage = () => {
                 <Flex gap={1}>
                   {entry.url && (
                     <Tooltip label="Visit deployment">
-                      <Link href={`https://${entry.url}`} isExternal aria-label="Visit">
+                      <Link href={`https://${entry.url}`} target="_blank" rel="noreferrer noopener" aria-label="Visit">
                         <ExternalLink />
                       </Link>
                     </Tooltip>
                   )}
                   {entry.inspectorUrl && (
                     <Tooltip label="Inspect deployment">
-                      <Link href={entry.inspectorUrl} isExternal aria-label="Inspect">
+                      <Link href={entry.inspectorUrl} target="_blank" rel="noreferrer noopener" aria-label="Inspect">
                         <Eye />
                       </Link>
                     </Tooltip>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFetchClient } from '@strapi/strapi/admin';
 import { PLUGIN_ID } from '../pluginId';
 
@@ -23,27 +23,28 @@ export function useDeployments(
   const [deployments, setDeployments] = useState<Deployment[]>([]);
   const [isLoading, setIsLoading] = useState(enabled);
   const [hasError, setHasError] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Keep ALL mutable state in refs to ensure effects have zero deps
+  // and never accidentally restart due to new function references.
   const hasErrorRef = useRef(false);
-  // Keep callback in a ref so fetchDeployments never has it as a dep
+  const isFetchingRef = useRef(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // These refs are updated every render (no effect needed)
+  const getRef = useRef(get);
   const callbackRef = useRef(onDeploymentsFetched);
-  useEffect(() => { callbackRef.current = onDeploymentsFetched; });
+  getRef.current = get;
+  callbackRef.current = onDeploymentsFetched;
 
-  const stopPolling = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, []);
-
-  // fetchDeployments is stable — only depends on get (from useFetchClient)
-  const fetchDeployments = useCallback(() => {
-    // Don't fetch if already in error state
+  // Stable fetch function stored in a ref — never changes, always uses latest refs
+  const doFetch = useRef(() => {
     if (hasErrorRef.current) return;
+    if (isFetchingRef.current) return; // prevent overlapping requests
+    isFetchingRef.current = true;
 
-    get(`/${PLUGIN_ID}/deploy/list`)
+    getRef.current(`/${PLUGIN_ID}/deploy/list`)
       .then((response: any) => {
-        const list: Deployment[] = response.data?.data?.deployments ?? response.data?.deployments ?? [];
+        const list: Deployment[] =
+          response.data?.data?.deployments ?? response.data?.deployments ?? [];
         setDeployments(list);
         setHasError(false);
         hasErrorRef.current = false;
@@ -58,35 +59,49 @@ export function useDeployments(
         hasErrorRef.current = true;
         setDeployments([]);
         // Stop polling immediately on error
-        stopPolling();
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
         if (callbackRef.current) callbackRef.current(false);
       })
-      .finally(() => setIsLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [get, stopPolling]);
+      .finally(() => {
+        setIsLoading(false);
+        isFetchingRef.current = false;
+      });
+  });
 
-  // Initial fetch — only re-run when enabled changes or fetchDeployments is recreated
-  const enabledRef = useRef(enabled);
+  // Initial fetch — only fires when `enabled` changes (true → false resets, false → true fetches)
+  const prevEnabledRef = useRef(false);
   useEffect(() => {
-    if (enabled && !enabledRef.current) {
-      // reset error when re-enabled
+    if (enabled && !prevEnabledRef.current) {
+      // Transitioning from disabled → enabled: reset error and fetch once
       hasErrorRef.current = false;
+      isFetchingRef.current = false;
       setHasError(false);
+      doFetch.current();
     }
-    enabledRef.current = enabled;
-    if (enabled) fetchDeployments();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    prevEnabledRef.current = enabled;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
+  // Polling — only fires when `usePolling` changes
   useEffect(() => {
-    // Don't start polling if already in error state
-    if (usePolling && !hasErrorRef.current) {
-      intervalRef.current = setInterval(fetchDeployments, POLL_INTERVAL);
-    } else {
-      stopPolling();
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-    return () => stopPolling();
-  }, [usePolling, fetchDeployments, stopPolling]);
+    if (usePolling && !hasErrorRef.current) {
+      intervalRef.current = setInterval(() => doFetch.current(), POLL_INTERVAL);
+    }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usePolling]);
 
   return [isLoading, deployments, hasError];
 }

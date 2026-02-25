@@ -130,9 +130,13 @@ export const SettingsPage = () => {
             })}
             hint={
               <>
-                Learn more about{" "}
-                <Link href="https://vercel.com/docs/git/deploy-hooks" isExternal>
-                  Vercel Deploy Hooks
+                Go to your project on Vercel →{" "}
+                <Link href="https://vercel.com/dashboard" isExternal>
+                  Dashboard
+                </Link>
+                {" → Settings → Git → Deploy Hooks. "}
+                <Link href="https://vercel.com/docs/deploy-hooks" isExternal>
+                  Official docs
                 </Link>
               </>
             }
@@ -151,10 +155,11 @@ export const SettingsPage = () => {
             })}
             hint={
               <>
-                Access tokens can be created and managed inside your{" "}
-                <Link href="https://vercel.com/account/tokens" isExternal>
-                  account settings
+                Create a token at{" "}
+                <Link href="https://vercel.com/account/settings/tokens" isExternal>
+                  vercel.com/account/settings/tokens
                 </Link>
+                {" (Account Settings → Tokens → Create Token)"}.
               </>
             }
           />
@@ -171,12 +176,11 @@ export const SettingsPage = () => {
             })}
             hint={
               <>
-                Set the name of your{" "}
+                The project name shown at the top of your{" "}
                 <Link href="https://vercel.com/dashboard" isExternal>
-                  Vercel App
-                </Link>{" "}
-                to see only the deployments you need
-              </>
+                  Vercel Dashboard
+                </Link>
+                {" (also visible in the URL: vercel.com/<team>/<project-name>). Leave empty to show all projects."}              </>
             }
           />
           <FieldRow
@@ -192,12 +196,11 @@ export const SettingsPage = () => {
             })}
             hint={
               <>
-                Set the id of your{" "}
+                Required for team accounts. Find it at{" "}
                 <Link href="https://vercel.com/dashboard" isExternal>
-                  Vercel Team
-                </Link>{" "}
-                to see only the deployments you need
-              </>
+                  vercel.com
+                </Link>
+                {" → Team → Settings → General → Team ID (starts with team_). Leave empty for personal accounts."}              </>
             }
           />
         </Box>
