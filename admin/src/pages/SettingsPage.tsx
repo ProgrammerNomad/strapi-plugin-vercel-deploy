@@ -9,6 +9,7 @@ import {
   TextInput,
   Link,
   EmptyStateLayout,
+  Typography,
 } from "@strapi/design-system";
 import { PLUGIN_ID } from "../pluginId";
 
@@ -18,6 +19,44 @@ interface PluginConfig {
   appFilter?: string;
   teamFilter?: string;
 }
+
+const FieldRow = ({
+  name,
+  label,
+  required,
+  value,
+  placeholder,
+  hint,
+}: {
+  name: string;
+  label: string;
+  required?: boolean;
+  value: string;
+  placeholder: string;
+  hint: React.ReactNode;
+}) => (
+  <Box
+    paddingLeft={10}
+    paddingRight={10}
+    paddingTop={2}
+    paddingBottom={2}
+  >
+    <Field.Root name={name}>
+      <Field.Label>
+        {label}
+        {required && (
+          <Typography textColor="danger600" aria-hidden>
+            {" "}*
+          </Typography>
+        )}
+      </Field.Label>
+      <TextInput placeholder={placeholder} value={value} disabled />
+      <Typography variant="pi" textColor="neutral600">
+        {hint}
+      </Typography>
+    </Field.Root>
+  </Box>
+);
 
 export const SettingsPage = () => {
   const { formatMessage } = useIntl();
@@ -76,67 +115,61 @@ export const SettingsPage = () => {
         })}
       />
       <Layouts.Content>
-        <Box
-          background="neutral0"
-          shadow="tableShadow"
-          paddingTop={6}
-          paddingBottom={6}
-          paddingLeft={7}
-          paddingRight={7}
-          hasRadius
-        >
-          <Flex direction="column" gap={6}>
-            <Field.Root required name="deploy-hook" hint={
+        <Box background="neutral0" hasRadius shadow="tableShadow" paddingTop={6} paddingBottom={6}>
+          <FieldRow
+            name="deploy-hook"
+            label={formatMessage({
+              id: `${PLUGIN_ID}.settings-page.deploy-hook.label`,
+              defaultMessage: "Deploy Hook",
+            })}
+            required
+            value={config.deployHook ?? ""}
+            placeholder={formatMessage({
+              id: `${PLUGIN_ID}.settings-page.deploy-hook.placeholder`,
+              defaultMessage: "You need to set `deployHook` in plugin config",
+            })}
+            hint={
               <>
                 Learn more about{" "}
                 <Link href="https://vercel.com/docs/git/deploy-hooks" isExternal>
                   Vercel Deploy Hooks
                 </Link>
               </>
-            }>
-              <Field.Label>
-                {formatMessage({
-                  id: `${PLUGIN_ID}.settings-page.deploy-hook.label`,
-                  defaultMessage: "Deploy Hook",
-                })}
-              </Field.Label>
-              <TextInput
-                placeholder={formatMessage({
-                  id: `${PLUGIN_ID}.settings-page.deploy-hook.placeholder`,
-                  defaultMessage: "You need to set `deployHook` in plugin config",
-                })}
-                value={config.deployHook ?? ""}
-                disabled
-              />
-              <Field.Hint />
-            </Field.Root>
-
-            <Field.Root required name="api-token" hint={
+            }
+          />
+          <FieldRow
+            name="api-token"
+            label={formatMessage({
+              id: `${PLUGIN_ID}.settings-page.api-token.label`,
+              defaultMessage: "API token",
+            })}
+            required
+            value={config.apiToken ?? ""}
+            placeholder={formatMessage({
+              id: `${PLUGIN_ID}.settings-page.api-token.placeholder`,
+              defaultMessage: "You need to set `apiToken` in plugin config",
+            })}
+            hint={
               <>
                 Access tokens can be created and managed inside your{" "}
                 <Link href="https://vercel.com/account/tokens" isExternal>
                   account settings
                 </Link>
               </>
-            }>
-              <Field.Label>
-                {formatMessage({
-                  id: `${PLUGIN_ID}.settings-page.api-token.label`,
-                  defaultMessage: "API token",
-                })}
-              </Field.Label>
-              <TextInput
-                placeholder={formatMessage({
-                  id: `${PLUGIN_ID}.settings-page.api-token.placeholder`,
-                  defaultMessage: "You need to set `apiToken` in plugin config",
-                })}
-                value={config.apiToken ?? ""}
-                disabled
-              />
-              <Field.Hint />
-            </Field.Root>
-
-            <Field.Root name="app-name" hint={
+            }
+          />
+          <FieldRow
+            name="app-name"
+            label={formatMessage({
+              id: `${PLUGIN_ID}.settings-page.app-name.label`,
+              defaultMessage: "App Name",
+            })}
+            value={config.appFilter ?? ""}
+            placeholder={formatMessage({
+              id: `${PLUGIN_ID}.settings-page.app-name.placeholder`,
+              defaultMessage: "You need to set `appFilter` in plugin config",
+            })}
+            hint={
               <>
                 Set the name of your{" "}
                 <Link href="https://vercel.com/dashboard" isExternal>
@@ -144,25 +177,20 @@ export const SettingsPage = () => {
                 </Link>{" "}
                 to see only the deployments you need
               </>
-            }>
-              <Field.Label>
-                {formatMessage({
-                  id: `${PLUGIN_ID}.settings-page.app-name.label`,
-                  defaultMessage: "App Name",
-                })}
-              </Field.Label>
-              <TextInput
-                placeholder={formatMessage({
-                  id: `${PLUGIN_ID}.settings-page.app-name.placeholder`,
-                  defaultMessage: "You need to set `appFilter` in plugin config",
-                })}
-                value={config.appFilter ?? ""}
-                disabled
-              />
-              <Field.Hint />
-            </Field.Root>
-
-            <Field.Root name="team-id" hint={
+            }
+          />
+          <FieldRow
+            name="team-id"
+            label={formatMessage({
+              id: `${PLUGIN_ID}.settings-page.team-id.label`,
+              defaultMessage: "Team Id",
+            })}
+            value={config.teamFilter ?? ""}
+            placeholder={formatMessage({
+              id: `${PLUGIN_ID}.settings-page.team-id.placeholder`,
+              defaultMessage: "You need to set `teamFilter` in plugin config",
+            })}
+            hint={
               <>
                 Set the id of your{" "}
                 <Link href="https://vercel.com/dashboard" isExternal>
@@ -170,24 +198,8 @@ export const SettingsPage = () => {
                 </Link>{" "}
                 to see only the deployments you need
               </>
-            }>
-              <Field.Label>
-                {formatMessage({
-                  id: `${PLUGIN_ID}.settings-page.team-id.label`,
-                  defaultMessage: "Team Id",
-                })}
-              </Field.Label>
-              <TextInput
-                placeholder={formatMessage({
-                  id: `${PLUGIN_ID}.settings-page.team-id.placeholder`,
-                  defaultMessage: "You need to set `teamFilter` in plugin config",
-                })}
-                value={config.teamFilter ?? ""}
-                disabled
-              />
-              <Field.Hint />
-            </Field.Root>
-          </Flex>
+            }
+          />
         </Box>
       </Layouts.Content>
     </Page.Main>
