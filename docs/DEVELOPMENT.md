@@ -21,24 +21,34 @@ This guide is for contributors working on the plugin source code.
 │   ├── index.ts               # Plugin registration (menu link, settings section)
 │   ├── pluginId.ts            # Plugin ID constant
 │   ├── pages/
+│   │   ├── App.tsx            # Route wrapper
 │   │   ├── HomePage.tsx       # Deployments list + Deploy button
 │   │   └── SettingsPage.tsx   # Read-only config display
 │   ├── hooks/
 │   │   ├── useDeployAvailability.ts   # Checks if hook/token are configured
 │   │   └── useDeployments.ts          # Fetches + polls deployment list
 │   ├── components/
+│   │   ├── Initializer.tsx    # Plugin initializer component
 │   │   └── PluginIcon.tsx     # Sidebar icon
 │   └── translations/
 │       └── en.json            # i18n strings
 ├── server/src/
 │   ├── index.ts               # Server plugin registration
+│   ├── bootstrap.ts           # Plugin bootstrap hook
+│   ├── register.ts            # Plugin register hook
+│   ├── destroy.ts             # Plugin destroy hook
 │   ├── controllers/
+│   │   ├── controller.ts      # Base controller
 │   │   ├── deploy.ts          # runDeploy, getDeployments, deployAvailability
-│   │   └── config.ts          # Returns plugin config to admin
+│   │   ├── config.ts          # Returns plugin config to admin
+│   │   └── index.ts           # Controllers index
 │   ├── services/
-│   │   └── deploy.ts          # Vercel API calls (axios)
+│   │   ├── deploy.ts          # Vercel API calls (axios)
+│   │   ├── service.ts         # Base service
+│   │   └── index.ts           # Services index
 │   └── routes/
-│       └── admin.ts           # 4 admin-only routes
+│       ├── admin.ts           # 4 admin-only routes
+│       └── index.ts           # Routes index
 └── docs/
     └── DEVELOPMENT.md         # This file
 ```
