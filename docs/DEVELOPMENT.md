@@ -59,7 +59,7 @@ This guide is for contributors working on the plugin source code.
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 22–26 (same range as Strapi 5.64)
 - A Strapi v5 project to test against
 - [yalc](https://github.com/wclr/yalc) installed globally:
   ```bash
@@ -70,7 +70,7 @@ This guide is for contributors working on the plugin source code.
 
 **1. Install dependencies in the plugin:**
 ```bash
-npm install --legacy-peer-deps
+npm install
 ```
 
 **2. Build and publish to the local yalc store:**
@@ -82,7 +82,7 @@ yalc publish
 **3. In your Strapi project, add the plugin via yalc:**
 ```bash
 yalc add @nomadprogrammer/strapi-plugin-vercel-deploy
-npm install --legacy-peer-deps
+npm install
 ```
 
 **4. Register the plugin in `config/plugins.js`:**

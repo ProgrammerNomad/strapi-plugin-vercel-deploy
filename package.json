@@ -1,6 +1,6 @@
 {
   "name": "@nomadprogrammer/strapi-plugin-vercel-deploy",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Strapi v5 plugin to trigger and monitor deployments on Vercel",
   "license": "MIT",
   "author": "Shiv Singh <shiv@srapsware.com>",
@@ -20,7 +20,7 @@
     "url": "https://github.com/ProgrammerNomad/strapi-plugin-vercel-deploy/issues"
   },
   "engines": {
-    "node": ">=18.x.x <=22.x.x",
+    "node": ">=22.0.0 <=26.x.x",
     "npm": ">=6.0.0"
   },
   "type": "commonjs",
@@ -56,11 +56,11 @@
     "axios": "^1.7.9"
   },
   "devDependencies": {
-    "@strapi/strapi": "^5.8.0",
-    "@strapi/design-system": "^2.0.0-rc.30",
-    "@strapi/icons": "^2.0.0-rc.30",
-    "@strapi/sdk-plugin": "^6.0.0",
-    "@strapi/typescript-utils": "^5.8.0",
+    "@strapi/strapi": "^5.64.0",
+    "@strapi/design-system": "^2.3.1",
+    "@strapi/icons": "^2.3.1",
+    "@strapi/sdk-plugin": "^6.1.1",
+    "@strapi/typescript-utils": "^5.64.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "ajv": "^8.18.0",
@@ -73,12 +73,12 @@
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@strapi/design-system": "^2.0.0-rc.0",
-    "@strapi/icons": "^2.0.0-rc.0",
-    "@strapi/strapi": "^5.0.0",
+    "@strapi/design-system": "^2.3.1",
+    "@strapi/icons": "^2.3.1",
+    "@strapi/strapi": "^5.64.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-router-dom": "^6.0.0",
+    "react-router-dom": "^6.30.3",
     "styled-components": "^6.0.0"
   },
   "strapi": {

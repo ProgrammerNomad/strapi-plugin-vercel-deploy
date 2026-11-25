@@ -170,8 +170,8 @@ Set as `VERCEL_DEPLOY_PLUGIN_APP_FILTER`. Leave empty to show all projects.
 
 | Software | Version |
 |----------|---------|
-| Strapi   | v5+     |
-| Node.js  | 18+     |
+| Strapi   | 5.64+   |
+| Node.js  | 22–26   |
 | Vercel   | API v6  |
 
 ---
