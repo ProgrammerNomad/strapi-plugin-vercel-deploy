@@ -134,7 +134,7 @@ A Deploy Hook is a unique URL that triggers a new build when called. Keep it sec
 
 1. Go to [vercel.com/account/settings/tokens](https://vercel.com/account/settings/tokens).
 2. Fill in **TOKEN NAME**, set **SCOPE** to your team (or Full Account for personal), set **EXPIRATION** (recommended: `No Expiration`).
-3. Click **Create** and **copy the token immediately** — it is only shown once.
+3. Click **Create** and **copy the token immediately** - it is only shown once.
 4. Set it as `VERCEL_DEPLOY_PLUGIN_API_TOKEN` in your `.env`.
 
 > Official docs: [vercel.com/docs/rest-api#authentication](https://vercel.com/docs/rest-api#authentication)
@@ -162,7 +162,7 @@ Set as `VERCEL_DEPLOY_PLUGIN_APP_FILTER`. Leave empty to show all projects.
 1. Open the Strapi Admin Panel.
 2. Navigate to **Vercel Deploy** in the side menu.
 3. Click **Deploy** to trigger a new deployment.
-4. Monitor deployment status live — no need to open Vercel separately.
+4. Monitor deployment status live - no need to open Vercel separately.
 
 ---
 

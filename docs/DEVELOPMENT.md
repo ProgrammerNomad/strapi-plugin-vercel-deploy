@@ -114,7 +114,7 @@ npm start
 After making changes to the plugin source:
 
 ```bash
-# 1. In the plugin directory — build and push:
+# 1. In the plugin directory - build and push:
 npm run build
 yalc push
 

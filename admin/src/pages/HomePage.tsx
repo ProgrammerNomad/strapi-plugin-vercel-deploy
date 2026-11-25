@@ -73,7 +73,7 @@ export const HomePage = () => {
   const canDeploy = availability?.runDeploy === "AVAILABLE";
   const canList = availability?.listDeploy === "AVAILABLE";
 
-  // Stable callback — must not be recreated each render to avoid infinite fetch loop
+  // Stable callback - must not be recreated each render to avoid infinite fetch loop
   const onDeploymentsFetched = React.useCallback((hasNonFinalState: boolean) => {
     setUsePolling(hasNonFinalState);
   }, []);
@@ -97,7 +97,7 @@ export const HomePage = () => {
       console.error("[vercel-deploy] deploy error", err);
       toggleNotification({
         type: "danger",
-        message: "Deployment failed — please retry",
+        message: "Deployment failed - please retry",
       });
     } finally {
       setIsDeploying(false);
@@ -122,13 +122,13 @@ export const HomePage = () => {
           message={
             availabilityError === "FORBIDDEN"
               ? "You do not have permission to access this plugin."
-              : "Could not check feature availability — please reload the page."
+              : "Could not check feature availability - please reload the page."
           }
         />
       );
     }
 
-    // Missing API token — cannot list deployments
+    // Missing API token - cannot list deployments
     if (!canList) {
       return (
         <InfoBox

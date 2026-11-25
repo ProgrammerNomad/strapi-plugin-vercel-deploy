@@ -35,7 +35,7 @@ export function useDeployments(
   getRef.current = get;
   callbackRef.current = onDeploymentsFetched;
 
-  // Stable fetch function stored in a ref — never changes, always uses latest refs
+  // Stable fetch function stored in a ref - never changes, always uses latest refs
   const doFetch = useRef(() => {
     if (hasErrorRef.current) return;
     if (isFetchingRef.current) return; // prevent overlapping requests
@@ -71,7 +71,7 @@ export function useDeployments(
       });
   });
 
-  // Initial fetch — only fires when `enabled` changes (true → false resets, false → true fetches)
+  // Initial fetch - only fires when `enabled` changes (true → false resets, false → true fetches)
   const prevEnabledRef = useRef(false);
   useEffect(() => {
     if (enabled && !prevEnabledRef.current) {
@@ -85,7 +85,7 @@ export function useDeployments(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
-  // Polling — only fires when `usePolling` changes
+  // Polling - only fires when `usePolling` changes
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
